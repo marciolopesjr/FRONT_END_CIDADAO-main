@@ -27,24 +27,37 @@ try {
             $description = validate_input($decoded['description'] ?? '');
             $latitude = $decoded['latitude'] ?? null;
             $longitude = $decoded['longitude'] ?? null;
+            // Novos campos: status e secretariat_id (opcionais por enquanto)
+            $status = validate_input($decoded['status'] ?? ''); // Pega o status do JSON, se fornecido
+            $secretariat_id = $decoded['secretariat_id'] ?? null; // Pega o secretariat_id do JSON, se fornecido
         } else {
             $category = validate_input($_POST['category'] ?? '');
             $description = validate_input($_POST['description'] ?? '');
             $latitude = $_POST['latitude'] ?? null;
             $longitude = $_POST['longitude'] ?? null;
+            // Novos campos: status e secretariat_id (opcionais por enquanto)
+            $status = validate_input($_POST['status'] ?? ''); // Pega o status do POST, se fornecido
+            $secretariat_id = $_POST['secretariat_id'] ?? null; // Pega o secretariat_id do POST, se fornecido
         }
 
         if (empty($category) || empty($description) || $latitude === null || $longitude === null) {
             send_json_response(['error' => 'Por favor, forneça categoria, descrição e localização da demanda.'], 400);
         }
 
-        $stmt = $db->prepare("INSERT INTO demands (user_id, category, description, latitude, longitude) VALUES (:user_id, :category, :description, :latitude, :longitude)");
+        // Define um status padrão para novas demandas (ex: "Nova", "Pendente", etc.)
+        $default_status = "Nova"; // Você pode escolher um status inicial diferente
+        if (empty($status)) { // Se o status não foi fornecido na requisição, usa o padrão
+            $status = $default_status;
+        }
+
+        $stmt = $db->prepare("INSERT INTO demands (user_id, category, description, latitude, longitude, status, secretariat_id) VALUES (:user_id, :category, :description, :latitude, :longitude, :status, :secretariat_id)");
         $stmt->bindParam(':user_id', $_SESSION['user_id'], PDO::PARAM_INT);
         $stmt->bindParam(':category', $category, PDO::PARAM_STR);
         $stmt->bindParam(':description', $description, PDO::PARAM_STR);
-        // Determine the correct PDO parameter type based on your database column type
         $stmt->bindParam(':latitude', $latitude);
         $stmt->bindParam(':longitude', $longitude);
+        $stmt->bindParam(':status', $status, PDO::PARAM_STR); // Bind do status
+        $stmt->bindParam(':secretariat_id', $secretariat_id, PDO::PARAM_INT); // Bind do secretariat_id (pode ser NULL)
         $stmt->execute();
 
         send_json_response(['message' => 'Demanda criada com sucesso!'], 201);

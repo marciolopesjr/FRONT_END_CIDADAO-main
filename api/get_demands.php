@@ -14,13 +14,10 @@ try {
     // Tenta conectar ao banco de dados usando a função connect_db() definida em database.php.
     $db = connect_db();
 
-    // Executa uma query SQL para selecionar todos os campos 'id', 'category', 'description', 'latitude', e 'longitude' da tabela 'demands'.
-    // Estou usando query() porque é uma query simples de SELECT sem parâmetros dinâmicos.
-    $stmt = $db->query("SELECT id, category, description, latitude, longitude FROM demands");
+    // Executa uma query SQL para selecionar todos os campos, incluindo status e secretariat_id
+    $stmt = $db->query("SELECT id, category, description, latitude, longitude, status, secretariat_id FROM demands");
 
     // Busca todos os resultados da query como um array associativo.
-    // PDO::FETCH_ASSOC garante que os resultados sejam retornados como arrays associativos,
-    // onde as chaves são os nomes das colunas do banco de dados.
     $demands = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Envia a resposta JSON com o array de demandas e código HTTP 200 (OK).
