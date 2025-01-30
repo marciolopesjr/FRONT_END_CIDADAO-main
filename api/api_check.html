@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Check</title>
+    <!-- Estilos CSS inline para simplificar o exemplo. Em um projeto real,
+         estes estilos deveriam estar em um arquivo CSS separado. -->
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .status {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"],
+        input[type="password"] {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Check</h1>
+
+    <!-- Div para exibir o status do teste de registro. -->
+    <div id="registrationStatus" class="status">Clique em "Testar Registro"</div>
+    <div class="form-group">
+        <!-- Campos para dados de registro. -->
+        <input type="text" id="regName" placeholder="Name">
+        <input type="text" id="regEmail" placeholder="Email">
+        <input type="text" id="regCpf" placeholder="CPF">
+        <input type="password" id="regPassword" placeholder="Password">
+        <!-- Botão para iniciar o teste de registro, chamando a função testRegister() no JavaScript. -->
+        <button onclick="testRegister()">Testar Registro</button>
+    </div>
+
+    <!-- Div para exibir o status do teste de login. -->
+    <div id="loginStatus" class="status">Clique em "Testar Login"</div>
+    <div class="form-group">
+        <!-- Campos para dados de login. -->
+        <input type="text" id="loginCpf" placeholder="CPF">
+        <input type="password" id="loginPassword" placeholder="Password">
+        <!-- Botão para iniciar o teste de login, chamando a função testLogin() no JavaScript. -->
+        <button onclick="testLogin()">Testar Login</button>
+    </div>
+
+    <!-- Div para exibir o status do teste de criação de demanda. -->
+    <div id="createDemandStatus" class="status">Clique em "Testar Criar Demanda"</div>
+    <div class="form-group">
+        <!-- Campos para dados de criação de demanda. -->
+        <input type="text" id="demandCategory" placeholder="Category">
+        <input type="text" id="demandDescription" placeholder="Description">
+        <input type="text" id="demandLatitude" placeholder="Latitude">
+        <input type="text" id="demandLongitude" placeholder="Longitude">
+        <!-- Botão para iniciar o teste de criação de demanda, chamando a função testCreateDemand() no JavaScript. -->
+        <button onclick="testCreateDemand()">Testar Criar Demanda</button>
+    </div>
+
+    <script>
+        // URL base da API. Ajuste se a API estiver em um caminho diferente.
+        const apiBaseUrl = '/api';
+
+        /**
+         * Função assíncrona para testar o endpoint de registro da API.
+         * Esta função coleta os dados do formulário de registro, envia uma requisição POST
+         * para o endpoint /api/register.php e atualiza a div 'registrationStatus' com o resultado.
+         */
+        async function testRegister() {
+            // Obtém a div de status do registro para atualizar com mensagens.
+            const statusDiv = document.getElementById('registrationStatus');
+            // Define o texto inicial da div de status para indicar que o teste está em andamento.
+            statusDiv.textContent = 'Testando registro...';
+
+            // Coleta os valores dos campos de input do formulário de registro.
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const cpf = document.getElementById('regCpf').value;
+            const password = document.getElementById('regPassword').value;
+
+            // Cria um objeto FormData para enviar os dados como um formulário multipart/form-data.
+            // FormData é adequado para enviar dados de formulário e também arquivos, se necessário.
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('email', email);
+            formData.append('cpf', cpf);
+            formData.append('password', password);
+
+            try {
+                // Envia uma requisição POST para o endpoint de registro da API.
+                const response = await fetch(`${apiBaseUrl}/register.php`, {
+                    method: 'POST',
+                    body: formData, // Envia os dados do formulário no corpo da requisição.
+                });
+
+                // Converte a resposta para JSON.
+                const data = await response.json();
+                // Verifica se a resposta da API foi bem-sucedida (código de status HTTP 2xx).
+                if (response.ok) {
+                    // Se o registro foi OK, atualiza a div de status para indicar sucesso e exibir a mensagem da API.
+                    statusDiv.textContent = `Registro OK: ${data.message}`;
+                    statusDiv.className = 'status success'; // Aplica a classe 'success' para estilização verde.
+                } else {
+                    // Se o registro falhou (código de status HTTP diferente de 2xx), atualiza a div de status para indicar falha e exibir a mensagem de erro da API.
+                    statusDiv.textContent = `Registro Falhou: ${data.error}`;
+                    statusDiv.className = 'status error'; // Aplica a classe 'error' para estilização vermelha.
+                }
+            } catch (error) {
+                // Se ocorrer um erro durante a comunicação com a API (ex: falha de rede),
+                // atualiza a div de status para indicar erro de conexão e exibir a mensagem de erro.
+                statusDiv.textContent = `Erro ao conectar com a API: ${error}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        /**
+         * Função assíncrona para testar o endpoint de login da API.
+         * Semelhante à testRegister(), mas para o endpoint de login (/api/login.php).
+         */
+        async function testLogin() {
+            const statusDiv = document.getElementById('loginStatus');
+            statusDiv.textContent = 'Testando login...';
+
+            const cpf = document.getElementById('loginCpf').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const formData = new FormData();
+            formData.append('cpf', cpf);
+            formData.append('password', password);
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/login.php`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    // Em caso de login bem-sucedido, exibe a mensagem de sucesso e o user_id retornado pela API.
+                    statusDiv.textContent = `Login OK: ${data.message} (User ID: ${data.user_id})`;
+                    statusDiv.className = 'status success';
+                } else {
+                    statusDiv.textContent = `Login Falhou: ${data.error}`;
+                    statusDiv.className = 'status error';
+                }
+            } catch (error) {
+                statusDiv.textContent = `Erro ao conectar com a API: ${error}`;
+                statusDiv.className = 'status error';
+            }
+        }
+
+        /**
+         * Função assíncrona para testar o endpoint de criação de demanda da API.
+         * Semelhante às anteriores, mas para o endpoint /api/create_demand.php.
+         */
+        async function testCreateDemand() {
+            const statusDiv = document.getElementById('createDemandStatus');
+            statusDiv.textContent = 'Testando criar demanda...';
+
+            const category = document.getElementById('demandCategory').value;
+            const description = document.getElementById('demandDescription').value;
+            const latitude = document.getElementById('demandLatitude').value;
+            const longitude = document.getElementById('demandLongitude').value;
+
+            const formData = new FormData();
+            formData.append('category', category);
+            formData.append('description', description);
+            formData.append('latitude', latitude);
+            formData.append('longitude', longitude);
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/create_demand.php`, {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    statusDiv.textContent = `Criar Demanda OK: ${data.message}`;
+                    statusDiv.className = 'status success';
+                } else {
+                    statusDiv.textContent = `Criar Demanda Falhou: ${data.error}`;
+                    statusDiv.className = 'status error';
+                }
+            } catch (error) {
+                statusDiv.textContent = `Erro ao conectar com a API: ${error}`;
+                statusDiv.className = 'status error';
+            }
+        }
+    </script>
+</body>
+</html>

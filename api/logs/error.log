@@ -1,0 +1,6 @@
+[2025-01-20 06:02:21] Falha de login para o CPF: 06371737082
+[2025-01-20 06:02:36] Falha de login para o CPF: 06371737082
+[2025-01-20 06:03:29] Erro de constraint ao registrar usuário: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '06371737082' for key 'cpf'
+[2025-01-20 06:09:23] Falha de login para o CPF: 06371737082
+[2025-01-20 06:10:19] Falha de login para o CPF: 06371737082
+[2025-01-20 06:12:59] Falha de login para o CPF: 06371737082
